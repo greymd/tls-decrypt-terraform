@@ -51,3 +51,13 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ca_cert_file_path" {
+  description = "Path to the local CA certificate file"
+  type        = string
+}
+
+variable "ca_key_file_path" {
+  description = "Path to the local CA private key file"
+  type        = string
+}

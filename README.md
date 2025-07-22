@@ -22,10 +22,11 @@ This Terraform module automatically creates and configures an AWS environment to
 
 ## Prerequisites
 
-1. **ACM Certificate**: A server certificate for AWS Client VPN must be registered in AWS Certificate Manager
-2. **Terraform**: Version 1.12.2 or higher
-3. **AWS CLI**: Authentication completed with an AWS account having appropriate IAM permissions
-4. **Session Manager Plugin**: AWS CLI Session Manager plugin for EC2 instance access
+1. **OpenSSL**: For local CA certificate generation
+2. **ACM Certificate**: A server certificate for AWS Client VPN must be registered in AWS Certificate Manager  
+3. **Terraform**: Version 1.12.2 or higher
+4. **AWS CLI**: Authentication completed with an AWS account having appropriate IAM permissions
+5. **Session Manager Plugin**: AWS CLI Session Manager plugin for EC2 instance access
 
 ## Usage
 
@@ -36,7 +37,19 @@ git clone <repository-url>
 cd tls-decrypt-terraform
 ```
 
-### 2. Create Configuration File
+### 2. Generate CA Certificates
+
+Follow the detailed guide in [SSL_CERTIFICATE_SETUP.md](SSL_CERTIFICATE_SETUP.md) to generate CA certificates locally.
+
+```bash
+mkdir -p certificates
+cd certificates
+openssl genrsa -out squid-ca-key.pem 4096
+openssl req -new -x509 -days 3650 -key squid-ca-key.pem -out squid-ca-cert.pem \
+  -subj "/C=JP/ST=Tokyo/L=Tokyo/O=TLS-Decrypt/OU=Security/CN=Squid-CA"
+```
+
+### 3. Create Configuration File
 
 ```bash
 cp terraform.tfvars.example terraform.tfvars
@@ -52,9 +65,11 @@ private_subnet_cidrs  = ["10.10.1.0/24"]
 client_vpn_cidr       = "10.12.0.0/22"
 instance_type         = "t3.medium"
 client_vpn_server_cert = "arn:aws:acm:ap-northeast-1:123456789012:certificate/your-cert-id"
+ca_cert_file_path     = "./certificates/squid-ca-cert.pem"
+ca_key_file_path      = "./certificates/squid-ca-key.pem"
 ```
 
-### 3. Run Terraform
+### 4. Run Terraform
 
 ```bash
 # Initialize
@@ -67,7 +82,7 @@ terraform plan
 terraform apply
 ```
 
-### 4. Check Outputs
+### 5. Check Outputs
 
 ```bash
 terraform output
@@ -83,7 +98,16 @@ Important outputs:
 
 For detailed certificate setup procedures, refer to [SSL_CERTIFICATE_SETUP.md](SSL_CERTIFICATE_SETUP.md).
 
-### Retrieve CA Certificate
+### Retrieve CA Certificate for Mobile Devices
+
+You can retrieve the CA certificate from AWS Parameter Store:
+
+```bash
+# Get the CA certificate from Parameter Store
+aws ssm get-parameter --name "/tls-decrypt/ca-cert" --query "Parameter.Value" --output text > mobile-ca-cert.pem
+```
+
+Alternatively, connect to the EC2 instance:
 
 ```bash
 # Connect to EC2 instance via SSM Session Manager
@@ -93,7 +117,7 @@ aws ssm start-session --target <squid_instance_id>
 sudo cat /etc/squid/ssl_cert/squid-ca-cert.pem
 ```
 
-Install this certificate on your mobile devices.
+Install this certificate on your mobile devices following the instructions in [SSL_CERTIFICATE_SETUP.md](SSL_CERTIFICATE_SETUP.md).
 
 ## File Structure
 
@@ -101,6 +125,7 @@ Install this certificate on your mobile devices.
 ├── CLAUDE.md                    # Project specification
 ├── README.md                    # This file
 ├── SSL_CERTIFICATE_SETUP.md     # Certificate setup guide
+├── certificates.tf             # ACM and SSM Parameter Store for certificates
 ├── client_vpn.tf               # Client VPN resources
 ├── ec2.tf                      # EC2 instance and EIP
 ├── main.tf                     # Data sources and VPC resources

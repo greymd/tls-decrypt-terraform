@@ -21,6 +21,10 @@ client_vpn_server_cert = "arn:aws:acm:ap-northeast-1:123456789012:certificate/ab
 # Client VPN Authentication Type
 client_vpn_auth_type = "certificate-authentication"
 
+# CA Certificate files (generate locally first - see SSL_CERTIFICATE_SETUP.md)
+ca_cert_file_path = "./certificates/squid-ca-cert.pem"
+ca_key_file_path  = "./certificates/squid-ca-key.pem"
+
 # Common tags applied to all resources
 tags = {
   Environment = "development"

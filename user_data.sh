@@ -13,15 +13,19 @@ echo 'net.ipv4.conf.all.send_redirects = 0' >> /etc/sysctl.conf
 echo 'net.ipv4.conf.default.send_redirects = 0' >> /etc/sysctl.conf
 sysctl -p
 
-# Create CA certificate for SSL bumping
+# Retrieve CA certificates from SSM Parameter Store
 mkdir -p /etc/squid/ssl_cert
 cd /etc/squid/ssl_cert
 
-# Generate CA private key
-openssl genrsa -out squid-ca-key.pem 4096
+# Get region from instance metadata
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+REGION=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/region)
 
-# Generate CA certificate
-openssl req -new -x509 -days 3650 -key squid-ca-key.pem -out squid-ca-cert.pem -subj "/C=JP/ST=Tokyo/L=Tokyo/O=TLS-Decrypt/OU=Security/CN=Squid-CA"
+# Retrieve CA certificate from Parameter Store
+aws ssm get-parameter --region $REGION --name "/tls-decrypt/ca-cert" --query "Parameter.Value" --output text > squid-ca-cert.pem
+
+# Retrieve CA private key from Parameter Store
+aws ssm get-parameter --region $REGION --name "/tls-decrypt/ca-key" --with-decryption --query "Parameter.Value" --output text > squid-ca-key.pem
 
 # Set proper permissions
 chown squid:squid squid-ca-*
@@ -146,8 +150,6 @@ COMMIT
 # Accept loopback traffic
 -A INPUT -i lo -j ACCEPT
 
-# Accept SSH from VPC
--A INPUT -p tcp --dport 22 -s 10.10.0.0/16 -j ACCEPT
 
 # Accept Squid ports from VPN clients
 -A INPUT -p tcp --dport 3128 -s 10.12.0.0/22 -j ACCEPT
