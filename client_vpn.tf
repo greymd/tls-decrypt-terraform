@@ -1,13 +1,15 @@
 # Client VPN Endpoint
 resource "aws_ec2_client_vpn_endpoint" "main" {
   description            = "TLS Decrypt Client VPN Endpoint"
-  server_certificate_arn = var.client_vpn_server_cert
+  server_certificate_arn = aws_acm_certificate.ca_cert.arn
   client_cidr_block      = var.client_vpn_cidr
   split_tunnel           = false
+  vpc_id                 = aws_vpc.main.id
   security_group_ids     = [aws_security_group.client_vpn.id]
-  
+
   authentication_options {
     type = var.client_vpn_auth_type
+    root_certificate_chain_arn = aws_acm_certificate.ca_cert.arn
   }
 
   connection_log_options {

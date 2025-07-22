@@ -35,11 +35,6 @@ variable "client_vpn_cidr" {
   default     = "10.12.0.0/22"
 }
 
-variable "client_vpn_server_cert" {
-  description = "ARN of the ACM server certificate for Client VPN"
-  type        = string
-}
-
 variable "client_vpn_auth_type" {
   description = "Authentication type (e.g. certificate-authentication or directory-service)"
   type        = string

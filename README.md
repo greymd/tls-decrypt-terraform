@@ -64,7 +64,6 @@ public_subnet_cidrs   = ["10.10.0.0/24"]
 private_subnet_cidrs  = ["10.10.1.0/24"]
 client_vpn_cidr       = "10.12.0.0/22"
 instance_type         = "t3.medium"
-client_vpn_server_cert = "arn:aws:acm:ap-northeast-1:123456789012:certificate/your-cert-id"
 ca_cert_file_path     = "./certificates/squid-ca-cert.pem"
 ca_key_file_path      = "./certificates/squid-ca-key.pem"
 ```

@@ -73,7 +73,6 @@ Define requirements for a Terraform module that automates the creation and confi
 | `region`                 | string      | `"ap-northeast-1"`             | AWS region                                                                     |
 | `instance_type`          | string      | `"t3.medium"`                  | EC2 instance type for NAT/Squid                                                |
 | `client_vpn_cidr`        | string      | `"10.12.0.0/22"`               | IPv4 CIDR block to assign to VPN clients                                       |
-| `client_vpn_server_cert` | string      | *(required)*                   | ARN of the ACM server certificate for Client VPN                               |
 | `client_vpn_auth_type`   | string      | `"certificate-authentication"` | Authentication type (e.g. `certificate-authentication` or `directory-service`) |
 | `ca_cert_file_path`      | string      | *(required)*                   | Path to locally generated CA certificate file                                  |
 | `ca_key_file_path`       | string      | *(required)*                   | Path to locally generated CA private key file                                  |
@@ -87,7 +86,6 @@ private_subnet_cidrs   = ["10.10.1.0/24"]
 region                 = "ap-northeast-1"
 instance_type          = "t3.medium"
 client_vpn_cidr        = "10.12.0.0/22"
-client_vpn_server_cert = "arn:aws:acm:ap-northeast-1:123456789012:certificate/abcdef..."
 client_vpn_auth_type   = "certificate-authentication"
 ca_cert_file_path      = "./certificates/squid-ca-cert.pem"
 ca_key_file_path       = "./certificates/squid-ca-key.pem"
