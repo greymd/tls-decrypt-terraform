@@ -13,8 +13,6 @@ client_vpn_cidr        = "10.12.0.0/22"
 # EC2 Configuration
 instance_type = "t3.medium"
 
-# Required: SSH Key Pair Name (must exist in your AWS account)
-key_name = "your-ssh-key-name"
 
 # Required: ACM Server Certificate ARN for Client VPN
 # You must create this certificate in AWS Certificate Manager before running Terraform

@@ -22,10 +22,10 @@ This Terraform module automatically creates and configures an AWS environment to
 
 ## Prerequisites
 
-1. **SSH Key Pair**: An SSH key pair must exist in your AWS account for EC2 instance access
-2. **ACM Certificate**: A server certificate for AWS Client VPN must be registered in AWS Certificate Manager
-3. **Terraform**: Version 1.12.2 or higher
-4. **AWS CLI**: Authentication completed with an AWS account having appropriate IAM permissions
+1. **ACM Certificate**: A server certificate for AWS Client VPN must be registered in AWS Certificate Manager
+2. **Terraform**: Version 1.12.2 or higher
+3. **AWS CLI**: Authentication completed with an AWS account having appropriate IAM permissions
+4. **Session Manager Plugin**: AWS CLI Session Manager plugin for EC2 instance access
 
 ## Usage
 
@@ -51,7 +51,6 @@ public_subnet_cidrs   = ["10.10.0.0/24"]
 private_subnet_cidrs  = ["10.10.1.0/24"]
 client_vpn_cidr       = "10.12.0.0/22"
 instance_type         = "t3.medium"
-key_name              = "your-ssh-key-name"
 client_vpn_server_cert = "arn:aws:acm:ap-northeast-1:123456789012:certificate/your-cert-id"
 ```
 
@@ -76,7 +75,8 @@ terraform output
 
 Important outputs:
 - `client_vpn_endpoint_dns`: Endpoint for VPN client connections
-- `squid_elastic_ip`: Public IP of Squid instance (for SSH access)
+- `squid_instance_id`: EC2 instance ID for SSM Session Manager access
+- `squid_elastic_ip`: Public IP of Squid instance
 - `ca_certificate_path`: Path to CA certificate for ssl_bump
 
 ## SSL Certificate Setup
@@ -86,8 +86,8 @@ For detailed certificate setup procedures, refer to [SSL_CERTIFICATE_SETUP.md](S
 ### Retrieve CA Certificate
 
 ```bash
-# SSH to EC2 instance
-ssh -i your-key.pem ec2-user@<squid_elastic_ip>
+# Connect to EC2 instance via SSM Session Manager
+aws ssm start-session --target <squid_instance_id>
 
 # Display CA certificate
 sudo cat /etc/squid/ssl_cert/squid-ca-cert.pem

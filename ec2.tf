@@ -25,7 +25,7 @@ resource "aws_iam_role" "squid_role" {
   })
 }
 
-# IAM policy to allow modifying source/dest check
+# IAM policy to allow modifying source/dest check and SSM access
 resource "aws_iam_role_policy" "squid_policy" {
   name = "tls-decrypt-squid-policy"
   role = aws_iam_role.squid_role.id
@@ -45,6 +45,12 @@ resource "aws_iam_role_policy" "squid_policy" {
   })
 }
 
+# Attach SSM managed policy for Session Manager
+resource "aws_iam_role_policy_attachment" "ssm_managed_instance_core" {
+  role       = aws_iam_role.squid_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 # Instance profile
 resource "aws_iam_instance_profile" "squid_profile" {
   name = "tls-decrypt-squid-profile"
@@ -55,7 +61,6 @@ resource "aws_iam_instance_profile" "squid_profile" {
 resource "aws_instance" "squid_nat" {
   ami                    = data.aws_ssm_parameter.al2023_ami.value
   instance_type          = var.instance_type
-  key_name               = var.key_name
   subnet_id              = aws_subnet.private[0].id
   vpc_security_group_ids = [aws_security_group.squid.id]
   iam_instance_profile   = aws_iam_instance_profile.squid_profile.name

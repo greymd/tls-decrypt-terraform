@@ -39,14 +39,6 @@ resource "aws_security_group" "squid" {
   description = "Security group for Squid NAT instance"
   vpc_id      = aws_vpc.main.id
 
-  # SSH access
-  ingress {
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
-  }
 
   # HTTP traffic from VPN clients
   ingress {

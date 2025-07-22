@@ -28,10 +28,6 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
-variable "key_name" {
-  description = "Name of the SSH key pair for EC2"
-  type        = string
-}
 
 variable "client_vpn_cidr" {
   description = "IPv4 CIDR block to assign to VPN clients"
