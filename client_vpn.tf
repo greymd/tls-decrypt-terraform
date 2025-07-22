@@ -4,6 +4,7 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
   server_certificate_arn = var.client_vpn_server_cert
   client_cidr_block      = var.client_vpn_cidr
   split_tunnel           = false
+  security_group_ids     = [aws_security_group.client_vpn.id]
   
   authentication_options {
     type = var.client_vpn_auth_type
@@ -11,10 +12,6 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
 
   connection_log_options {
     enabled = false
-  }
-
-  dns_options {
-    dns_servers = ["8.8.8.8", "8.8.4.4"]
   }
 
   tags = merge({
@@ -26,7 +23,6 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
 resource "aws_ec2_client_vpn_network_association" "main" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.main.id
   subnet_id              = aws_subnet.public[0].id
-  security_groups        = [aws_security_group.client_vpn.id]
 }
 
 # Authorization rule to allow access to VPC
@@ -48,7 +44,6 @@ resource "aws_ec2_client_vpn_authorization_rule" "internet_access" {
 # Route to direct all traffic through NAT instance
 resource "aws_ec2_client_vpn_route" "internet" {
   depends_on = [aws_ec2_client_vpn_network_association.main]
-  
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.main.id
   destination_cidr_block = "0.0.0.0/0"
   target_vpc_subnet_id   = aws_subnet.private[0].id
