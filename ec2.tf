@@ -2,9 +2,9 @@
 resource "aws_eip" "squid_nat" {
   domain = "vpc"
   
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-squid-eip"
-  }
+  }, var.tags)
 }
 
 # IAM role for EC2 instance
@@ -74,9 +74,9 @@ resource "aws_instance" "squid_nat" {
     encrypted   = true
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-squid-nat"
-  }
+  }, var.tags)
 }
 
 # Associate Elastic IP with NAT instance
@@ -94,9 +94,9 @@ resource "aws_route_table" "private" {
     network_interface_id = aws_instance.squid_nat.primary_network_interface_id
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-private-rt"
-  }
+  }, var.tags)
 }
 
 # Route Table Associations for Private Subnets

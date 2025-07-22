@@ -28,9 +28,9 @@ resource "aws_security_group" "client_vpn" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-client-vpn-sg"
-  }
+  }, var.tags)
 }
 
 # Security Group for Squid NAT instance
@@ -94,7 +94,7 @@ resource "aws_security_group" "squid" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-squid-sg"
-  }
+  }, var.tags)
 }

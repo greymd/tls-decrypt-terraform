@@ -14,18 +14,18 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-vpc"
-  }
+  }, var.tags)
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-igw"
-  }
+  }, var.tags)
 }
 
 # Public Subnets
@@ -37,9 +37,9 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
   map_public_ip_on_launch = true
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-public-subnet-${count.index + 1}"
-  }
+  }, var.tags)
 }
 
 # Private Subnets
@@ -50,9 +50,9 @@ resource "aws_subnet" "private" {
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = data.aws_availability_zones.available.names[count.index % length(data.aws_availability_zones.available.names)]
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-private-subnet-${count.index + 1}"
-  }
+  }, var.tags)
 }
 
 # Route Table for Public Subnets
@@ -64,9 +64,9 @@ resource "aws_route_table" "public" {
     gateway_id = aws_internet_gateway.main.id
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-public-rt"
-  }
+  }, var.tags)
 }
 
 # Route Table Associations for Public Subnets

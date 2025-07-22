@@ -45,3 +45,9 @@ variable "client_vpn_auth_type" {
   type        = string
   default     = "certificate-authentication"
 }
+
+variable "tags" {
+  description = "Common tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}

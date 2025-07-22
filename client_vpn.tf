@@ -17,9 +17,9 @@ resource "aws_ec2_client_vpn_endpoint" "main" {
     dns_servers = ["8.8.8.8", "8.8.4.4"]
   }
 
-  tags = {
+  tags = merge({
     Name = "tls-decrypt-client-vpn"
-  }
+  }, var.tags)
 }
 
 # Network Association with Public Subnet
